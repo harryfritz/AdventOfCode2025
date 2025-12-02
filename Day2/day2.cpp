@@ -47,6 +47,40 @@ long long isIDvalid(long long id){
     return 0;
 }
 
+long long isIDvalid_partTwo(long long id){
+    //Checks if ID is valid.
+    //If yes, return id
+    //If no, return 0
+    
+    int numDig = digits(id);
+
+    long long uni = 1;
+    long long dec = 10;
+    long long step;
+
+    int lastDig = -1;
+    for(int j = 0; j < numDig/2; j++){
+        uni = 1;
+        dec = 10;
+        for(int i = 0; i < j; i++){
+            dec *= 10;
+        }
+        step = dec;
+        for(int i = 1; i <= numDig/(j+1); i++) {
+            
+            if((id % dec) / uni == lastDig)
+            cout << " " + to_string((id % dec) / uni);        
+            
+            
+            uni = dec;
+            dec *= step;
+        }
+        cout << "\n";
+    }
+
+    return 0;
+}
+
 int main() {
   
     ifstream file;
@@ -74,8 +108,8 @@ int main() {
         rangeStart = stoll(nextRange.substr(0, nextRange.find("-")));
         rangeEnd = stoll(nextRange.substr(nextRange.find("-") + 1, nextRange.size() - nextRange.find("-")));
         for(long long id = rangeStart; id <= rangeEnd; id++){
-            answer += isIDvalid(id);
-            if(isIDvalid(id) != 0){
+            answer += isIDvalid_partTwo(id);
+            if(isIDvalid_partTwo(id) != 0){
                 cout << "\ninvalid id:" + to_string(id) + " new answer:" + to_string(answer);
             } 
         }
