@@ -59,23 +59,29 @@ long long isIDvalid_partTwo(long long id){
     long long step;
 
     int lastDig = -1;
-    for(int j = 0; j < numDig/2; j++){
+    for(int j = 1; j <= numDig/2; j++){
         uni = 1;
         dec = 10;
-        for(int i = 0; i < j; i++){
+        for(int i = 1; i < j; i++){
             dec *= 10;
         }
         step = dec;
-        for(int i = 1; i <= numDig/(j+1); i++) {
+        for(int i = 1; i <= numDig/j && numDig%j == 0; i++) {
             
-            if((id % dec) / uni == lastDig)
-            cout << " " + to_string((id % dec) / uni);        
-            
-            
+            if(i > 1){
+                if(lastDig != (id % dec) / uni){
+                    break;
+                }
+
+                if(i == numDig/j){
+                    return id;
+                }
+            }
+            lastDig =  (id % dec) / uni;
+
             uni = dec;
             dec *= step;
         }
-        cout << "\n";
     }
 
     return 0;
@@ -91,6 +97,7 @@ int main() {
     }
 
     long long answer = 0;
+    long long oldAnswer = 0;
 
     string input;
     getline(file, input);
@@ -109,7 +116,8 @@ int main() {
         rangeEnd = stoll(nextRange.substr(nextRange.find("-") + 1, nextRange.size() - nextRange.find("-")));
         for(long long id = rangeStart; id <= rangeEnd; id++){
             answer += isIDvalid_partTwo(id);
-            if(isIDvalid_partTwo(id) != 0){
+            if(answer != oldAnswer){
+                oldAnswer = answer;
                 cout << "\ninvalid id:" + to_string(id) + " new answer:" + to_string(answer);
             } 
         }
