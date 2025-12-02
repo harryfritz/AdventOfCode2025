@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////
 //
 // Advent of Code 2025
-// Day 1 - Puzzle 1
+// Day 1 - Puzzles 1 and 2
 // Author: Fritz, M.H.
 //
 //
