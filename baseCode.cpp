@@ -10,6 +10,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -18,11 +19,6 @@ int main() {
   
     ifstream file;
     file.open("input.txt");
-    if (!file) {
-        cerr << "Unable to open file input.txt";
-        exit(1);   
-    }
-
     string input;
 
     while(getline(file, input)){
