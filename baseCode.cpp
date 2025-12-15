@@ -20,7 +20,8 @@ int main() {
     ifstream file;
     file.open("input.txt");
     string input;
-
+    cout << "\n";
+    
     while(getline(file, input)){
         cout << "\n" + input;
     }

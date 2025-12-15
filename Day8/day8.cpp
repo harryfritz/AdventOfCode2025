@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////
 //
 // Advent of Code 2025
-// Day X - Part one and two
+// Day 8 - Part one and two
 // Author: Fritz, M.H.
 //
 //
