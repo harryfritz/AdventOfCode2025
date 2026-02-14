@@ -11,28 +11,22 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <limits>
-#include <algorithm>
 
 using namespace std;
 
+
 vector <vector <int>> redTiles;
-vector <vector <int>> compRedTiles;
 
-vector <vector <char>> tileMap;
+// vector <vector <char>> tileMap;
 
-vector <int> rows;
-vector <int> columns;
-vector <vector <char>> compTileMap;
 
 vector <vector <int>> largestAreas;
 
 long long int tilesFilled = 0;
 
+
 vector <long long int> areas;
 vector <vector <int> > areasCoordinates;
-
-
 
 void insertAreas(int tile1, int tile2, long long int area){
     if(areas.size() == 0){
@@ -57,7 +51,7 @@ void insertAreas(int tile1, int tile2, long long int area){
 
 bool isTileInside(int tileX, int tileY){
     
-    //Ray Casting Method
+    //Ray Casting
     vector <char> tileLine;// = tileMap[tileY];
     int borderCrossCounter = 0;
     bool enableCrossCounter = true;
@@ -78,7 +72,9 @@ bool isTileInside(int tileX, int tileY){
 
     return true;
     
-    // Scanner Method
+    
+    
+    // Scanner Methdo
     for(int k = tileY; ; k--){
         if(tileMap[k][tileX] == '#' || tileMap[k][tileX] == 'X'){
             break;
@@ -162,23 +158,20 @@ bool isAreaValid_old(int tile1, int tile2){
 }
 
 void printTileMap(){
-    for(vector <char> tileLine : tileMap){
+    for(int i = 0; i < TILEMAP_HEIGHT; i++){
         cout << '\n';
-        for(char tile : tileLine){
-            cout << tile;
+        for(int j = 0; j < TILEMAP_WIDTH; j++){
+            cout << tileMap[i][j];
         }
     }
-}
-
-void printCompTileMap(){
-    cout << '\n';
-    cout << '\n';
-    for(vector <char> tileLine : compTileMap){
-        cout << '\n';
-        for(char tile : tileLine){
-            cout << tile;
-        }
-    }
+    
+    
+    // for(vector <char> tileLine : tileMap){
+    //     cout << '\n';
+    //     for(char tile : tileLine){
+    //         cout << tile;
+    //     }
+    // }
 }
 
 void printLargestAreas(){
@@ -193,19 +186,31 @@ void printLargestAreas(){
 
 void drawTilemapBorders(){
     //Draw Tilemaps borders
-    
     cout << '\n';
-    for(int i = 0; i < tileMap.size(); i++){
+    for(int i = 0; i < TILEMAP_HEIGHT; i++){
         tileMap[i][0] = 'o';
-        tileMap[i][tileMap[i].size()-1] = 'o';
+        tileMap[i][TILEMAP_WIDTH-1] = 'o';
         cout << "\rDraw Vertical Borders " << i; 
     }
     cout << '\n';
-    for(int j = 0; j < tileMap[0].size(); j++){
+    for(int j = 0; j < TILEMAP_WIDTH; j++){
         tileMap[0][j] = 'o';
-        tileMap[tileMap.size()-1][j] = 'o';
+        tileMap[TILEMAP_HEIGHT-1][j] = 'o';
         cout << "\rDraw Horizontal Borders " << j; 
     }
+    
+    // cout << '\n';
+    // for(int i = 0; i < tileMap.size(); i++){
+    //     tileMap[i][0] = 'o';
+    //     tileMap[i][tileMap[i].size()-1] = 'o';
+    //     cout << "\rDraw Vertical Borders " << i; 
+    // }
+    // cout << '\n';
+    // for(int j = 0; j < tileMap[0].size(); j++){
+    //     tileMap[0][j] = 'o';
+    //     tileMap[tileMap.size()-1][j] = 'o';
+    //     cout << "\rDraw Horizontal Borders " << j; 
+    // }
 }
 
 void placeRedTiles(){
@@ -267,18 +272,27 @@ void buildTileMap(){
         }
     }
 
-    //Fill Tile Map with 'x'
-    vector <char> tileLine;
     cout << '\n';
-    for(int j = 0; j < xMax + 3; j++){
-        tileLine.push_back('x');
-        cout << "\rBuild Tile Column " << j;
+    for(int i = 0; i < TILEMAP_HEIGHT; i++){
+        cout << "\rBuild Tile Line " << i;
+        for(int j = 0; j < TILEMAP_WIDTH; j++){
+            tileMap[i][j] = 'x';
+        }
     }
-    cout << "\n";
-    for(int i = 0; i < yMax + 3; i++){
-        cout << "\rBuild Tile Map Line " << i;
-        tileMap.push_back(tileLine);
-    }
+
+
+    // //Fill Tile Map with '.'
+    // vector <char> tileLine;
+    // cout << '\n';
+    // for(int j = 0; j < xMax + 3; j++){
+    //     tileLine.push_back('.');
+    //     cout << "\rBuild Tile Column " << j;
+    // }
+    // cout << "\n";
+    // for(int i = 0; i < yMax + 3; i++){
+    //     cout << "\rBuild Tile Map Line " << i;
+    //     tileMap.push_back(tileLine);
+    // }
 }
 
 void placeGreenTilesFilling(){   
@@ -376,8 +390,6 @@ void recursiveVoidTilesFilling(int centerTileX, int centerTileY){
 
 void voidTilesFilling(int firstTileX, int firstTileY){
     
-    tileMap[firstTileX][firstTileY] = '.';
-    
     vector <vector <int>> tilesToFill;
     tilesToFill.push_back({firstTileX, firstTileY});
     int centerTileX;
@@ -387,100 +399,37 @@ void voidTilesFilling(int firstTileX, int firstTileY){
         centerTileX = tilesToFill[0][0];
         centerTileY = tilesToFill[0][1];
         
-        if(centerTileX - 1 >= 0){
-            if(tileMap[centerTileY][centerTileX - 1] == 'x'){
-                tileMap[centerTileY][centerTileX - 1] = '.';
-                tilesToFill.push_back({centerTileX - 1, centerTileY});
-            }
+        if(tileMap[centerTileY][centerTileX - 1] == 'x'){
+            tileMap[centerTileY][centerTileX - 1] = '.';
+            tilesToFill.push_back({centerTileX - 1, centerTileY});
         }
-        
-        if(centerTileX + 1 < tileMap[centerTileY].size()){
-            if(tileMap[centerTileY][centerTileX + 1] == 'x'){
-                tileMap[centerTileY][centerTileX + 1] = '.';
-                tilesToFill.push_back({centerTileX + 1, centerTileY});
-            }
+        if(tileMap[centerTileY][centerTileX + 1] == 'x'){
+            tileMap[centerTileY][centerTileX + 1] = '.';
+            tilesToFill.push_back({centerTileX + 1, centerTileY});
         }
-        
-        if(centerTileY - 1 >= 0){
-            if(tileMap[centerTileY - 1][centerTileX] == 'x'){
-                tileMap[centerTileY - 1][centerTileX] = '.';
-                tilesToFill.push_back({centerTileX, centerTileY - 1});
-            }
+        if(tileMap[centerTileY - 1][centerTileX] == 'x'){
+            tileMap[centerTileY - 1][centerTileX] = '.';
+            tilesToFill.push_back({centerTileX, centerTileY - 1});
         }
-        
-        if(centerTileY + 1 < tileMap.size()){
-            if(tileMap[centerTileY + 1][centerTileX] == 'x'){
-                tileMap[centerTileY + 1][centerTileX] = '.';
-                tilesToFill.push_back({centerTileX, centerTileY + 1});
-            }
+        if(tileMap[centerTileY + 1][centerTileX] == 'x'){
+            tileMap[centerTileY + 1][centerTileX] = '.';
+            tilesToFill.push_back({centerTileX, centerTileY + 1});
         }
-        
 
         tilesToFill.erase(tilesToFill.begin());
         
-        // if(tilesToFill.size() % 10000 == 0){
-        //     cout << "\rTiles to fill: " << tilesToFill.size();
-        // }        
+        if(tilesToFill.size() % 10000 == 0){
+            cout << "\rTiles to fill: " << tilesToFill.size();
+        }
+
+        
 
     }
     
 
 }
 
-void compVoidTilesFilling(int firstTileX, int firstTileY){
-    
-    compTileMap[firstTileX][firstTileY] = '.';
-    
-    vector <vector <int>> tilesToFill;
-    tilesToFill.push_back({firstTileX, firstTileY});
-    int centerTileX;
-    int centerTileY;
-    
-    while(tilesToFill.size() > 0){
-        centerTileX = tilesToFill[0][0];
-        centerTileY = tilesToFill[0][1];
-        
-        if(centerTileX - 1 >= 0){
-            if(compTileMap[centerTileY][centerTileX - 1] == 'x'){
-                compTileMap[centerTileY][centerTileX - 1] = '.';
-                tilesToFill.push_back({centerTileX - 1, centerTileY});
-            }
-        }
-        
-        if(centerTileX + 1 < compTileMap[centerTileY].size()){
-            if(compTileMap[centerTileY][centerTileX + 1] == 'x'){
-                compTileMap[centerTileY][centerTileX + 1] = '.';
-                tilesToFill.push_back({centerTileX + 1, centerTileY});
-            }
-        }
-        
-        if(centerTileY - 1 >= 0){
-            if(compTileMap[centerTileY - 1][centerTileX] == 'x'){
-                compTileMap[centerTileY - 1][centerTileX] = '.';
-                tilesToFill.push_back({centerTileX, centerTileY - 1});
-            }
-        }
-        
-        if(centerTileY + 1 < compTileMap.size()){
-            if(compTileMap[centerTileY + 1][centerTileX] == 'x'){
-                compTileMap[centerTileY + 1][centerTileX] = '.';
-                tilesToFill.push_back({centerTileX, centerTileY + 1});
-            }
-        }
-        
-
-        tilesToFill.erase(tilesToFill.begin());
-        
-        // if(tilesToFill.size() % 10000 == 0){
-        //     cout << "\rTiles to fill: " << tilesToFill.size();
-        // }        
-
-    }
-    
-
-}
-
-bool isAreaValid_old2(int t1X, int t1Y, int t2X, int t2Y){
+bool isAreaValid(int t1X, int t1Y, int t2X, int t2Y){
     
     int tile1X, tile1Y, tile2X, tile2Y;
 
@@ -526,45 +475,6 @@ bool isAreaValid_old2(int t1X, int t1Y, int t2X, int t2Y){
     return true;
 }
 
-bool isAreaValid(int tile1, int tile2){
-    int x1, x2, y1, y2;
-    if(compRedTiles[tile1][0] <= compRedTiles[tile2][0]){
-        x1 = compRedTiles[tile1][0];
-        x2 = compRedTiles[tile2][0];
-    } else {
-        x1 = compRedTiles[tile2][0];
-        x2 = compRedTiles[tile1][0];
-    }
-    if(compRedTiles[tile1][1] <= compRedTiles[tile2][1]){
-        y1 = compRedTiles[tile1][1];
-        y2 = compRedTiles[tile2][1];
-    } else {
-        y1 = compRedTiles[tile2][1];
-        y2 = compRedTiles[tile1][1];
-    }
-
-    for(int i = y1; i <= y2; i++){
-        for(int j = x1; j <= x2; j++){
-            if(compTileMap[i][j] == '.'){
-                return false;
-            }
-        }
-    }
-
-    return true;
-
-}
-
-bool isRedTile(int tileX, int tileY){
-    for(int i = 0; i < redTiles.size(); i++){
-        if(tileX == redTiles[i][0] && tileY == redTiles[i][1]){
-            return true;
-        }
-    }
-
-    return false;
-}
-
 
 
 int main() {  
@@ -573,132 +483,15 @@ int main() {
     string input;
 
     cout << "\n";
-    int firstX, firstY;
     for(int i = 0; getline(file, input); i++){        
-        if(i == 0){
-            firstX = stoi(input.substr(0,input.find(",")));
-            firstY = stoi(input.substr(input.find(",") + 1,input.size() - input.find(",")));
-        }
         redTiles.push_back({stoi(input.substr(0,input.find(","))),stoi(input.substr(input.find(",") + 1,input.size() - input.find(",")))});
     }
-    redTiles.push_back({firstX, firstY});
 
-    rows.push_back(0);
-    for(int i = 0; i < redTiles.size() - 1; i++){
-        rows.push_back(redTiles[i][1]);
-        rows.push_back(redTiles[i+1][1] + 1);
-    }
-    sort(rows.begin(), rows.end());
-    rows.erase(unique(rows.begin(), rows.end()), rows.end());
-
-    columns.push_back(0);
-    for(int i = 0; i < redTiles.size() - 1; i++){
-        columns.push_back(redTiles[i][0]);
-        columns.push_back(redTiles[i+1][0] + 1);
-    }
-    sort(columns.begin(), columns.end());
-    columns.erase(unique(columns.begin(), columns.end()), columns.end());
-    
-    for(int redTile = 0; redTile < redTiles.size(); redTile++){
-        for(int i = 0; i < columns.size(); i++){
-            if(columns[i] == redTiles[redTile][0]){
-                for(int j = 0; j < rows.size(); j++){
-                    if(rows[j] == redTiles[redTile][1]){
-                        compRedTiles.push_back({i,j});
-                        break;
-                    }
-                }
-                break;
-            }
-        }
-    }
-    
-    for(int i = 0; i < rows.size(); i++){
-        compTileMap.push_back({});
-        for(int j = 0; j < columns.size(); j++){
-            compTileMap[i].push_back('x');
-        }
-    }
-
-    for(int redTile = 0; redTile < compRedTiles.size(); redTile++){
-        compTileMap[compRedTiles[redTile][1]][compRedTiles[redTile][0]] = '#';
-    }
-
-    for(int redTile = 0; redTile < compRedTiles.size() - 1; redTile++){
-        if(compRedTiles[redTile][0] == compRedTiles[redTile + 1][0]){
-            if(compRedTiles[redTile + 1][1] > compRedTiles[redTile][1]){
-                for(int i = compRedTiles[redTile][1] + 1; i < compRedTiles[redTile + 1][1]; i++){
-                    compTileMap[i][compRedTiles[redTile][0]] = 'X';
-                }
-            } else {
-                for(int i = compRedTiles[redTile][1] - 1; i > compRedTiles[redTile + 1][1]; i--){
-                    compTileMap[i][compRedTiles[redTile][0]] = 'X';
-                }
-            }
-        } else if(compRedTiles[redTile][1] == compRedTiles[redTile + 1][1]){
-            if(compRedTiles[redTile + 1][0] > compRedTiles[redTile][0]){
-                for(int i = compRedTiles[redTile][0] + 1; i < compRedTiles[redTile + 1][0]; i++){
-                    compTileMap[compRedTiles[redTile][1]][i] = 'X';
-                }
-            } else {
-                for(int i = compRedTiles[redTile][0] - 1; i > compRedTiles[redTile + 1][0]; i--){
-                    compTileMap[compRedTiles[redTile][1]][i] = 'X';
-                }
-            }
-        }
-    }
-
-    compVoidTilesFilling(0, 0);
-    
-    printCompTileMap();
-
-    long long int largestArea = 0;
-    int tile1LA = 0;
-    int tile2LA = 0;
-    for(int tile1 = 0; tile1 < compRedTiles.size(); tile1++){
-        for(int tile2 = tile1 + 1; tile2 < compRedTiles.size(); tile2++){
-            if(isAreaValid(tile1, tile2)){
-                int redTile1x = columns[compRedTiles[tile1][0]];
-                int redTile1y = rows[compRedTiles[tile1][1]];
-                
-                int redTile2x = columns[compRedTiles[tile2][0]];
-                int redTile2y = rows[compRedTiles[tile2][1]];
-                
-                int x1, y1, x2, y2;
-                if(redTile1x <= redTile2x){
-                    x1 = redTile1x;
-                    x2 = redTile2x;
-                } else {
-                    x1 = redTile2x;
-                    x2 = redTile1x;
-                }
-                if(redTile1y <= redTile2y){
-                    y1 = redTile1y;
-                    y2 = redTile2y;
-                } else {
-                    y1 = redTile2y;
-                    y2 = redTile1y;
-                }
-
-                long long int area = (1 + x2 - x1) * (1 + y2 - y1);
-                if(area > largestArea){
-                    largestArea = area;
-                    tile1LA = tile1;
-                    tile2LA = tile2;
-                }
-            }
-        }
-    }
-
-    cout << "\nLargest Area: " << largestArea << " tile1: " << tile1LA << " tile2: " << tile2LA;
-
-    file.close();
-    return 0;
-
-    // Go through every compRedTile combination
+    // Go through every redTile combination
     cout << '\n';   
-    for(int tile1 = 0; tile1 < compRedTiles.size(); tile1++){
-        for(int tile2 = tile1 + 1; tile2 < compRedTiles.size(); tile2++){
+    for(int tile1 = 0; tile1 < redTiles.size(); tile1++){
+        for(int tile2 = tile1 + 1; tile2 < redTiles.size(); tile2++){
+            cout << "\rChecking redTile Combinations " << tile1 << " and " << tile2;
             long long int area = (1 + llabs(redTiles[tile1][0] - redTiles[tile2][0])) * (1 + llabs(redTiles[tile1][1] - redTiles[tile2][1]));
             insertAreas(tile1, tile2, area);
             if(areas.size() >= 900){
@@ -708,14 +501,15 @@ int main() {
         }
     }
 
-    buildTileMap();
-    // drawTilemapBorders();
-    placeRedTiles();
-    placeGreenTilesContour();   
-    voidTilesFilling(1, 1);
-    printTileMap();
+    // buildTileMap();
 
+    // drawTilemapBorders();
+
+    // placeRedTiles();
     
+    // placeGreenTilesContour();   
+    
+    // // printTileMap();
 
     // cout << '\n';
     // for(int i = areasCoordinates.size() - 1; i >= 0; i--){
@@ -732,26 +526,8 @@ int main() {
     //     }
     // }
 
-    file.close();
-    return 0;
-    
-    
-    
-    // Go through every redTile combination
-    cout << '\n';   
-    for(int tile1 = 0; tile1 < redTiles.size(); tile1++){
-        for(int tile2 = tile1 + 1; tile2 < redTiles.size(); tile2++){
-            cout << "\rChecking redTile Combinations " << tile1 << " and " << tile2;
-            long long int area = (1 + llabs(redTiles[tile1][0] - redTiles[tile2][0])) * (1 + llabs(redTiles[tile1][1] - redTiles[tile2][1]));
-            insertAreas(tile1, tile2, area);
-            if(areas.size() >= 900){
-                areas.erase(areas.begin());
-                areasCoordinates.erase(areasCoordinates.begin());
-            }
-        }
-    }
-
-    
+    // file.close();
+    // return 0;
 
 
 
@@ -766,7 +542,9 @@ int main() {
 
     // placeGreenTilesFilling();
 
-    
+    cout << '\n';
+    tileMap[1][1] = '.';
+    voidTilesFilling(1, 1);
     // recursiveVoidTilesFilling(1, 1);
     // recursiveGreenTilesFilling(98026 + 1, 50027);
 
