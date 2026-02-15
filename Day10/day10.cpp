@@ -19,10 +19,6 @@ vector <vector <char> > indicators;
 
 vector <vector <int> > buttons;
 
-vector <int> buttonCombinations;
-
-
-
 int intPow(int base, int exponent){
     int result = 1;
     for(int i = 0; i < exponent; i++){
@@ -42,7 +38,14 @@ bool isButtonSeqCorrect(int machine, int buttonResult){
 }
 
 void combineButtons(int machine, int k){
-    
+    vector <int> combinations;
+    for(int i = 0; i < k; i++){
+        combinations.push_back({});
+    }
+
+
+
+
 }
 
 int main() {

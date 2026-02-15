@@ -184,12 +184,16 @@ int main() {
 
     compVoidTilesFilling(0, 0);
     
+    ofstream myFile("output.txt");
+    
     cout << '\n';
     cout << '\n';
     for(vector <char> tileLine : compTileMap){
         cout << '\n';
+        myFile << endl;
         for(char tile : tileLine){
             cout << tile;
+            myFile << tile;
         }
     }
 
