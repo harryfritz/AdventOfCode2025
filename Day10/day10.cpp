@@ -15,57 +15,55 @@
 
 using namespace std; 
 
-vector <vector <char> > indicators;
-
-vector <vector <int> > buttons;
-
-vector <int> buttonCombinations;
-
-vector <int> dataComb;
-
-int intPow(int base, int exponent){
-    int result = 1;
-    for(int i = 0; i < exponent; i++){
-        result *= base;
-    }
-    return result;
-}
-
-bool isButtonSeqCorrect(int machine, int buttonResult){    
-    for(int i = 0; i < indicators[machine].size(); i++){
-        int digit = ((buttonResult / intPow(10,i)) % 10);
-        if(digit % 2 == 0 && indicators[machine][i] == '#' || digit % 2 == 1 && indicators[machine][i] == '.') {
+bool isButtonCombCorrect(vector <char>& indicators, vector <int>& btnComb){    
+    for(int i = 0; i < indicators.size(); i++){
+        if(btnComb[i] % 2 == 0 && indicators[i] == '#' || btnComb[i] % 2 == 1 && indicators[i] == '.') {
             return false;
         }
     }
     return true;
 }
 
-void combinationUtil(int machine, int ind, int r) {
-    int n = buttons[machine].size();
+void combinationUtil(vector <vector <int>>& machine, int ind, int r, 
+                        vector <vector <vector <int>>>& combinations, vector <vector <int>>& dataArr) {
+    int n = machine.size();
 
     if(ind == 0){
-        dataComb.clear();
-        buttonCombinations.clear();
+        dataArr.clear();
+        combinations.clear();
     }
     
-    if (dataComb.size() == r) {
-        int sum = 0;
-        for(int i : dataComb){
-            sum += i;
-        }
-        buttonCombinations.push_back(sum);
+    if (dataArr.size() == r) {
+        combinations.push_back(dataArr);
         return;
     }
 
     for(int i = ind; i < n; i++) {
-
-        dataComb.push_back(buttons[machine][i]);
-
-        combinationUtil(machine, i + 1, r);
-
-        dataComb.pop_back();
+        dataArr.push_back(machine[i]);
+        combinationUtil(machine, i + 1, r, combinations, dataArr);
+        dataArr.pop_back();
     }
+}
+
+vector <vector <int>> buttonCombinations(vector <vector <int>>& machine, int r){
+    vector <vector <vector <int>>> combinations;
+    vector <vector <int>> dataArr;
+    vector <vector <int>> btnComb;
+
+    combinationUtil(machine, 0, r, combinations, dataArr);
+
+    for(int i = 0; i < combinations.size(); i++){
+        btnComb.push_back({});
+        for(int k = 0; k < combinations[i][0].size(); k++){
+            int sum = 0;
+            for(int j = 0; j < combinations[i].size(); j++){
+                sum += combinations[i][j][k];
+            }
+            btnComb[i].push_back(sum);
+        }
+    }
+
+    return btnComb;
 }
 
 int main() {
@@ -73,7 +71,10 @@ int main() {
     ifstream file;
     file.open("input.txt");
     string input;
-    
+
+    vector <vector <char>> indicators;
+    vector <vector <vector <int>>> buttons;
+
     for(int i = 0; getline(file, input); i++){
         cout << "\n" + input;
         
@@ -90,29 +91,30 @@ int main() {
             if(button[c] == '('){
                 buttons[i].push_back({});
                 j++;
+                for(int k = 0; k < indicators[i].size(); k++){
+                    buttons[i][j].push_back(0);
+                }
             }
             if(button[c] >= '0' && button[c] <= '9'){
-                buttons[i][j] += intPow(10,button[c] - 48);
+                buttons[i][j][button[c] - 48] = 1;
             }
         }
     }    
-    
     
     int answer = 0;
     for(int machine = 0; machine < buttons.size(); machine++){
         bool foundCombination = false;
         for(int presses = 1; presses <= buttons[machine].size() && !foundCombination; presses++){            
 
-            combinationUtil(machine, 0, presses);
-            
-            for(int combination = 0; combination < buttonCombinations.size() && !foundCombination; combination++){
-                if(isButtonSeqCorrect(machine, buttonCombinations[combination])){
-                    cout << "\nMachine " << machine << ", " << presses << " button presses, combination " << combination;
+            for(vector <int> combination : buttonCombinations(buttons[machine], presses)){
+                if(isButtonCombCorrect(indicators[machine], combination)){
+                    cout << "\nMachine " << machine << ", " << presses << " button presses";
                     foundCombination = true;
                     answer += presses;
+                    break;
                 }
             }
-            
+
         }
     }
 
