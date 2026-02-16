@@ -19,6 +19,10 @@ vector <vector <char> > indicators;
 
 vector <vector <int> > buttons;
 
+vector <int> buttonCombinations;
+
+vector <int> dataComb;
+
 int intPow(int base, int exponent){
     int result = 1;
     for(int i = 0; i < exponent; i++){
@@ -37,21 +41,37 @@ bool isButtonSeqCorrect(int machine, int buttonResult){
     return true;
 }
 
-void combineButtons(int machine, int k){
-    vector <int> combinations;
-    for(int i = 0; i < k; i++){
-        combinations.push_back({});
+void combinationUtil(int machine, int ind, int r) {
+    int n = buttons[machine].size();
+
+    if(ind == 0){
+        dataComb.clear();
+        buttonCombinations.clear();
+    }
+    
+    if (dataComb.size() == r) {
+        int sum = 0;
+        for(int i : dataComb){
+            sum += i;
+        }
+        buttonCombinations.push_back(sum);
+        return;
     }
 
+    for(int i = ind; i < n; i++) {
 
+        dataComb.push_back(buttons[machine][i]);
 
+        combinationUtil(machine, i + 1, r);
 
+        dataComb.pop_back();
+    }
 }
 
 int main() {
   
     ifstream file;
-    file.open("example.txt");
+    file.open("input.txt");
     string input;
     
     for(int i = 0; getline(file, input); i++){
@@ -75,22 +95,30 @@ int main() {
                 buttons[i][j] += intPow(10,button[c] - 48);
             }
         }
+    }    
+    
+    
+    int answer = 0;
+    for(int machine = 0; machine < buttons.size(); machine++){
+        bool foundCombination = false;
+        for(int presses = 1; presses <= buttons[machine].size() && !foundCombination; presses++){            
+
+            combinationUtil(machine, 0, presses);
+            
+            for(int combination = 0; combination < buttonCombinations.size() && !foundCombination; combination++){
+                if(isButtonSeqCorrect(machine, buttonCombinations[combination])){
+                    cout << "\nMachine " << machine << ", " << presses << " button presses, combination " << combination;
+                    foundCombination = true;
+                    answer += presses;
+                }
+            }
+            
+        }
     }
 
+    cout << "\n\nAnswer: " << answer;
     
-    
-    
-    int machine = 0;
-    for(int pushes = 1; pushes <= indicators[machine].size(); pushes++){
-        
 
-        
-        
-        if(isButtonSeqCorrect(machine, 1));
-    }
-
-    
-    
     file.close();
     return 0;
 }
