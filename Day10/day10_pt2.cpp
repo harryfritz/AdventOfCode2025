@@ -66,6 +66,49 @@ vector <vector <int>> buttonCombinations(vector <vector <int>>& machine, int r){
     return btnComb;
 }
 
+int determinant(vector <vector <int>>& matrix){
+
+    if(matrix.size() == 2){
+        return matrix[0][0] * matrix[0][0] - matrix[0][1] * matrix[1][0];
+    }
+
+    int det = 0;
+    for(int j = 0; j < matrix[0].size(); j++){
+        vector <vector <int>> minor = matrix;
+
+        minor.erase(minor.begin());
+        for(int i = 0; i < minor.size(); i++){
+            minor[i].erase(minor[i].begin() + j);
+        }
+
+        if(j % 2 == 0){
+            det += matrix[0][j] * determinant(minor);
+        } else {
+            det -= matrix[0][j] * determinant(minor);
+        }
+    }
+
+    return det;
+
+}
+
+vector <int> sysSolution(vector <vector <int>>& A, vector <int>& B){
+    vector <int> X;
+
+    int detA = determinant(A);
+
+    for(int x = 0; x < B.size(); x++){
+        vector <vector <int>> Ab = A;
+        for(int i = 0; i < B.size(); i++){
+            Ab[i][x] = B[i];
+        }
+        X.push_back(determinant(Ab) / detA);
+    }
+
+    return X;
+
+}
+
 int main() {
   
     ifstream file;
@@ -78,18 +121,14 @@ int main() {
     for(int i = 0; getline(file, input); i++){
         cout << "\n" + input;
         
-        string joltagesStr = input.substr(input.find("{"), input.find("}"));
-        for(int i = 0; i < joltagesStr.size(); i++){
-            i = joltagesStr.find(',', i);
-            cout << "\nComma: " << i;
+        joltages.push_back({});
+        string joltagesStr = input.substr(input.find("{") + 1, input.find("}") - input.find("{") - 1);
+        int comma = 0;
+        for(int k = 0; k < joltagesStr.size() && comma != -1;){
+            comma = joltagesStr.find(',', k);
+            joltages[i].push_back(stoi(joltagesStr.substr(k, comma - k)));
+            k = comma + 1;
         }
-        
-        // joltages.push_back({});
-        // for(char c : joltagesStr){
-        //     if(c >= '0' && c <= '9'){
-        //         joltages[i].push_back(c - 48);
-        //     }
-        // }
 
         string button = input.substr(input.find("]") + 1, input.find("{") - input.find("]") - 1);
         buttons.push_back({});
@@ -106,7 +145,34 @@ int main() {
                 buttons[i][j][button[c] - 48] = 1;
             }
         }
-    }    
+    }
+
+    vector <vector <vector <int>>> btnComb;
+    vector <vector <int>> dataArr;
+
+    int answer = 0;
+    for(int machine = 0; machine < buttons.size(); machine++){
+        int buttonsPressed = 100000;
+        combinationUtil(buttons[machine], 0, joltages[machine].size(), btnComb, dataArr);
+        for(vector <vector <int>> base : btnComb){
+            if(determinant(base) != 0){
+                vector <int> solution = sysSolution(base, joltages[machine]);
+                int sum = 0;
+                for(int press : solution){
+                    if(press < 0){
+                        sum = 0;
+                        break;
+                    }
+                    sum += press;
+                }
+                if(sum < buttonsPressed){
+                    buttonsPressed = sum;
+                }
+            }
+        }
+        answer += buttonsPressed;
+    }
+    cout << "\n\nAnswer: " << answer;
     
     // int answer = 0;
     // for(int machine = 0; machine < buttons.size(); machine++){
@@ -124,7 +190,6 @@ int main() {
 
     //     }
     // }
-
     // cout << "\n\nAnswer: " << answer;
     
 
