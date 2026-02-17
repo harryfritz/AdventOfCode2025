@@ -79,12 +79,17 @@ int main() {
         cout << "\n" + input;
         
         string joltagesStr = input.substr(input.find("{"), input.find("}"));
-        joltages.push_back({});
-        for(char c : joltagesStr){
-            if(c >= '0' && c <= '9'){
-                joltages[i].push_back(c - 48);
-            }
+        for(int i = 0; i < joltagesStr.size(); i++){
+            i = joltagesStr.find(',', i);
+            cout << "\nComma: " << i;
         }
+        
+        // joltages.push_back({});
+        // for(char c : joltagesStr){
+        //     if(c >= '0' && c <= '9'){
+        //         joltages[i].push_back(c - 48);
+        //     }
+        // }
 
         string button = input.substr(input.find("]") + 1, input.find("{") - input.find("]") - 1);
         buttons.push_back({});
