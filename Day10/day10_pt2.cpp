@@ -79,6 +79,8 @@ int main() {
     int answer = 0;
     for(int machine = 0; machine < buttons.size(); machine++){
         
+        cout << "\nMachine " << machine;
+
         int presses = 0;
         for(int i = 0; i < joltages[machine].size(); i++){
             if(joltages[machine][i] > presses){
@@ -87,8 +89,12 @@ int main() {
         }
 
         int maxPresses = presses * joltages[machine].size();
+        cout << " MaxPresses: " << maxPresses;
         bool found = false;
         while(presses < maxPresses && !found){
+
+            cout << "\n\t" << presses << " presses";
+            
             vector <int> btnPresses;
             
             for(int i = 0; i < presses; i++){
@@ -102,7 +108,7 @@ int main() {
             sort(btnPresses.begin(), btnPresses.end());
             do {
                 int acum = 0;
-                vector <int> btnComb = {0};
+                vector <int> btnComb;
                 for (int i = 0; i < btnPresses.size(); i++){
                     if(btnPresses[i] == 0){
                         btnComb.push_back(acum);
@@ -110,15 +116,18 @@ int main() {
                     } else if(btnPresses[i] == 1){
                         acum++;
                     }
+                    if(i == btnPresses.size() - 1){
+                        btnComb.push_back(acum);
+                    }
                 }
 
                 if(isBtnCombCorrect(btnComb, buttons[machine], joltages[machine])){
                     found = true;
+                    answer += presses;
                 }
 
             } while (next_permutation(btnPresses.begin(), btnPresses.end()) && !found);
 
-            answer += presses;
             presses++;
         }
 
