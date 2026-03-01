@@ -104,6 +104,55 @@ class Fraction {
             }
         }
 
+        bool compare(const Fraction& x, const string op) const {
+            Fraction a = simplify(Fraction(num, den));
+            Fraction b = simplify(x);
+            
+            if(op == "=="){
+                if(a.num == b.num && a.den == b.den){
+                    return true;
+                } else {
+                    return false;
+                }
+            } else if(op == "!="){
+                if(a.num != b.num || a.den != b.den){
+                    return true;
+                } else {
+                    return false;
+                }
+            } 
+            
+            float af = (float) a.num / (float) a.den;
+            float bf = (float) b.num / (float) b.den;
+            if(op == ">"){
+                if(af > bf){
+                    return true;
+                } else {
+                    return false;
+                }
+            } else if(op == ">="){
+                if(af >= bf){
+                    return true;
+                } else {
+                    return false;
+                }
+            } else if(op == "<"){
+                if(af < bf){
+                    return true;
+                } else {
+                    return false;
+                }
+            } else if(op == "<="){
+                if(af <= bf){
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            return false;
+        }
+
 };
 
 bool isBtnCombCorrect(vector <int>& btnComb, vector <vector <int>>& buttons, vector <int>& joltages){
@@ -169,7 +218,7 @@ void printArray(string name, vector <Fraction>& V){
 int determinant(vector <vector <int>>& matrix){
 
     if(matrix.size() == 2){
-        return matrix[0][0] * matrix[0][0] - matrix[0][1] * matrix[1][0];
+        return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
     }
 
     int det = 0;
@@ -185,6 +234,32 @@ int determinant(vector <vector <int>>& matrix){
             det += matrix[0][j] * determinant(minor);
         } else {
             det -= matrix[0][j] * determinant(minor);
+        }
+    }
+
+    return det;
+
+}
+
+Fraction determinantF(vector <vector <Fraction>>& matrix){
+
+    if(matrix.size() == 2){
+        return matrix[0][0].mult(matrix[1][1]).sub(matrix[0][1].mult(matrix[1][0]));
+    }
+
+    Fraction det = Fraction(0,1);
+    for(int j = 0; j < matrix[0].size(); j++){
+        vector <vector <Fraction>> minor = matrix;
+
+        minor.erase(minor.begin());
+        for(int i = 0; i < minor.size(); i++){
+            minor[i].erase(minor[i].begin() + j);
+        }
+
+        if(j % 2 == 0){
+            det = det.add(matrix[0][j].mult(determinantF(minor)));
+        } else {
+            det = det.sub(matrix[0][j].mult(determinantF(minor)));
         }
     }
 
@@ -231,6 +306,24 @@ void interchangeRows(vector <Fraction>& row1, vector <Fraction>& row2){
     row1 = rowBuff;
 }
 
+vector <vector <Fraction>> interchangeCols(vector <vector <Fraction>> M, int col1, int col2){
+    for(int i = 0; i < M.size(); i++){
+        Fraction x = M[i][col1];
+        M[i][col1] = M[i][col2];
+        M[i][col2] = x;
+    }
+
+    return M;
+}
+
+vector <vector <Fraction>> replaceColWithArray(vector <vector <Fraction>> M, int col, vector <Fraction> arr){
+    for(int i = 0; i < M.size(); i++){
+        M[i][col] = arr[i];
+    }
+
+    return M;
+}
+
 void addSubTwoRows(vector <Fraction>& row1, vector <Fraction> row2, bool add){
     if(add){
         for(int i = 0; i < row1.size(); i++){
@@ -250,9 +343,8 @@ vector <Fraction> multRowbyConstant(vector <Fraction> row, Fraction k){
     return row;
 }
 
-void rowEchelon(vector <vector <Fraction>>& A, vector <Fraction>& B){
-
-    // printMatrix("A", A);
+vector <vector <Fraction>> gaussEliminationSolve(vector <vector <Fraction>> A, vector <Fraction>& B){
+    vector <vector <Fraction>> X;
 
     //Build extended Matrix
     for(int i = 0; i < A.size(); i++){
@@ -289,12 +381,6 @@ void rowEchelon(vector <vector <Fraction>>& A, vector <Fraction>& B){
         }
         // printMatrix("A", A);
     }
-}
-
-vector <vector <Fraction>> gaussEliminationSolve(vector <vector <Fraction>> A, vector <Fraction> B, int id){
-    vector <vector <Fraction>> X;
-
-    rowEchelon(A, B);
 
     for(int col = A[0].size() - 2; col >= 0; col--){
         //Backwards Elimination - UP
@@ -313,7 +399,7 @@ vector <vector <Fraction>> gaussEliminationSolve(vector <vector <Fraction>> A, v
     vector <int> pivots;
     for(int i = 0; i < A.size(); i++){
         bool zeroCol = true;
-        for(int j = 0; j < A[i].size() && zeroCol; j++){
+        for(int j = 0; j < A[i].size() - 1 && zeroCol; j++){
             if(A[i][j].num != 0){
                 zeroCol = false;
             }
@@ -326,14 +412,14 @@ vector <vector <Fraction>> gaussEliminationSolve(vector <vector <Fraction>> A, v
     for(int p : pivots){
         for(int i = 0; i < A.size(); i++){
             if(i == p){
-                X[i].push_back(Fraction(1,1));
+                // X[i].push_back(Fraction(1,1));
             } else {
                 X[i].push_back(A[i][p].mult(Fraction(-1,1)));
             }
         }
     }
 
-    printMatrix("A", A);
+    // printMatrix("A", A);
     return X;
 
 }
@@ -341,12 +427,13 @@ vector <vector <Fraction>> gaussEliminationSolve(vector <vector <Fraction>> A, v
 int main() {
   
     ifstream file;
-    file.open("example.txt");
+    file.open("input.txt");
     string input;
 
     vector <vector <int>> joltages;
     vector <vector <vector <int>>> buttons;
 
+    cout << "\n\nInput:";
     for(int i = 0; getline(file, input); i++){
         cout << "\n" + input;
         
@@ -380,49 +467,107 @@ int main() {
     
     int answer = 0;
     for(int machine = 0; machine < buttons.size(); machine++){
-        vector <vector <vector <int>>> btnComb;
-        vector <vector <int>> dataArr;
         
-        combinationUtil(buttons[machine], 0, joltages[machine].size(), btnComb, dataArr);
-
-        for(int btn = 0; btn < btnComb.size(); btn++){
-            vector <vector <int>> transp = transpose(btnComb[btn]);
-            vector <vector <Fraction>> btnCombF;
-
-            for(int i = 0; i < transp.size(); i++){
-                btnCombF.push_back({});
-                for(int j = 0; j < transp[i].size(); j++){
-                    btnCombF[i].push_back(itof(transp[i][j]));
-                }
+        
+        int totalPresses = 0;
+        for(int jolt : joltages[machine]){
+            totalPresses += jolt;
+        }
+        cout << "\n\nMachine " << machine << " - MaxPresses: " << totalPresses;        
+        
+        //Case Example Machine 0
+        for(int i = 0; i < buttons[machine].size(); i++){
+            while(buttons[machine][i].size() < buttons[machine].size()){
+                buttons[machine][i].push_back(0);
             }
+        }
+        while(joltages[machine].size() < buttons[machine].size()){
+            joltages[machine].push_back(0);
+        }
 
-            vector <Fraction> joltagesF;
-            for(int i = 0; i < joltages[machine].size(); i++){
-                joltagesF.push_back(itof(joltages[machine][i]));
+        //Case Example Machine 2
+        while(buttons[machine].size() < buttons[machine][0].size()){
+            buttons[machine].push_back({});
+            for(int i : buttons[machine][0]){
+                buttons[machine][buttons[machine].size() - 1].push_back(0);
             }
-
-            vector <vector <Fraction>> X;
-            X = gaussEliminationSolve(btnCombF, joltagesF, btn);
-
-            Fraction presses = Fraction(0,1);
-            for(vector <Fraction> row : X){
-                for(Fraction x : row){
-                    presses = presses.add(x);
-                }
-            }
-
-            cout << "\nMachine " << machine << " Presses: " + presses.show();
-            printMatrix("X", X);
         }
         
+        // combinationUtil(buttons[machine], 0, joltages[machine].size(), btnComb, dataArr);
         
-        
+        vector <vector <int>> transp = transpose(buttons[machine]);
+        vector <vector <Fraction>> btnCombF;
+
+        for(int i = 0; i < transp.size(); i++){
+            btnCombF.push_back({});
+            for(int j = 0; j < transp[i].size(); j++){
+                btnCombF[i].push_back(itof(transp[i][j]));
+            }
+        }
+
+        vector <Fraction> joltagesF;
+        for(int i = 0; i < joltages[machine].size(); i++){
+            joltagesF.push_back(itof(joltages[machine][i]));
+        }
 
         
+        // printMatrix("btn", btnCombF);
+        
+        
+        Fraction det = determinantF(btnCombF);
+        cout << " - Det(btnCombF)=" + det.show();
+        bool isBtnCombValid = true;
+        if(det.num == 0){
+            for(int i = 0; i < btnCombF.size() && isBtnCombValid; i++){
+                vector <vector <Fraction>> btnCombFi = replaceColWithArray(btnCombF, i, joltagesF);
+                Fraction detI = determinantF(btnCombFi);
+                cout << " - Det(btnCombF" << i << ")=" + detI.show();
+                if(detI.num != 0){
+                    isBtnCombValid = false;
+                    cout << " - BtnComb Invalid";
+                }
+            }
+        } 
 
+        if(isBtnCombValid){
+            cout << " - BtnComb Valid";
+
+            vector <vector <Fraction>> X;
+            X = gaussEliminationSolve(btnCombF, joltagesF);
+            printMatrix("X", X);
+
+            bool isXValid = true;
+            for(int i = 0; i < X.size(); i++){
+                if(X[i][0].num < 0){
+                    isXValid = false;
+                    cout << "\n\tResult invalid";
+                }
+            }
+
+            if(isXValid){
+                cout << "\n\tResult Valid: ";
+
+                Fraction pressesF = Fraction(0,1);
+                for(vector <Fraction> row : X){
+                    for(Fraction x : row){
+                        pressesF = pressesF.add(x);
+                    }
+                }
+                int presses = pressesF.num;
+                cout << pressesF.show() << " Presses. Int=" << presses;
+                
+                if(presses < totalPresses){
+                    totalPresses = presses;
+                }
+
+            }
+            
+        }
+        
+        answer += totalPresses;
     }
     
-    cout << "\n\nAnswer: " + answer;
+    cout << "\n\nAnswer: " << answer;
     
     
     file.close();
