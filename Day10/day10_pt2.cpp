@@ -13,6 +13,7 @@
 #include <vector>
 #include <math.h>
 #include <algorithm>
+#include <cstdarg>
 
 using namespace std; 
 
@@ -208,24 +209,71 @@ class Fraction {
             return A.compare(B, "==");
         }
 
+        friend bool operator==(const Fraction& A, const int& B){
+            return A.compare(Fraction(B,1), "==");
+        }
+
         friend bool operator!=(const Fraction& A, const Fraction& B){
             return A.compare(B, "!=");
+        }
+
+        friend bool operator!=(const Fraction& A, const int& B){
+            return A.compare(Fraction(B,1), "!=");
         }
 
         friend bool operator>(const Fraction& A, const Fraction& B){
             return A.compare(B, ">");
         }
 
+        friend bool operator>(const Fraction& A, const int& B){
+            return A.compare(Fraction(B,1), ">");
+        }
+
         friend bool operator<(const Fraction& A, const Fraction& B){
             return A.compare(B, "<");
+        }
+
+        friend bool operator<(const Fraction& A, const int& B){
+            return A.compare(Fraction(B,1), "<");
         }
 
         friend bool operator>=(const Fraction& A, const Fraction& B){
             return A.compare(B, ">=");
         }
 
+        friend bool operator>=(const Fraction& A, const int& B){
+            return A.compare(Fraction(B,1), ">=");
+        }
+
         friend bool operator<=(const Fraction& A, const Fraction& B){
             return A.compare(B, "<=");
+        }
+
+        friend bool operator<=(const Fraction& A, const int& B){
+            return A.compare(Fraction(B,1), "<=");
+        }
+
+};
+
+class MatrixInt {
+
+    private:
+        vector <vector <int>> matrix;
+
+    public:
+
+        MatrixInt(vector <vector <int>> _matrix){
+            matrix = _matrix;
+        }
+
+        MatrixInt(int rows, int columns){
+            vector <int> _rows(rows, 0);
+            matrix = vector(columns, _rows);
+        }
+
+        MatrixInt(){
+            matrix.push_back({});
+            matrix[0].push_back({});
         }
 
 };
@@ -317,19 +365,18 @@ vector <vector <Fraction>> gaussEliminationSolve(vector <vector <Fraction>> A, v
     for(int col = 0; col < A.size(); col++){
 
         //Make sure A[col][col] = 1
-        for(int i = col + 1; A[col][col] == Fraction(0,1) && i < A.size(); i++){
-            if(A[i][col] != Fraction(0,1)){
+        for(int i = col + 1; A[col][col] == 0 && i < A.size(); i++){
+            if(A[i][col] != 0){
                 interchangeRows(A[col], A[i]);
             }
         }
-        for(int i = col + 1; A[col][col] != Fraction(1,1) && i < A.size(); i++){
-            if(A[i][col] == Fraction(1,1)){
+        for(int i = col + 1; A[col][col] != 1 && i < A.size(); i++){
+            if(A[i][col] == 1){
                 interchangeRows(A[col], A[i]);
             }
         }
-        if(A[col][col] == Fraction(0,1)){
-            //Pivot!
-        } else if(A[col][col] != Fraction(1,1)){
+        
+        if(A[col][col] != 1){
             A[col] = multRowbyConstant(A[col], Fraction(1,1) / A[col][col]);
         }
         
@@ -340,7 +387,7 @@ vector <vector <Fraction>> gaussEliminationSolve(vector <vector <Fraction>> A, v
 
         //Elimination
         for(int i = col + 1; i < A.size(); i++){
-            if(A[i][col] != Fraction(0,1)){
+            if(A[i][col] != 0){
                 addSubTwoRows(A[i], multRowbyConstant(A[col], A[i][col] * Fraction(-1,1)), true);
             }
         }
@@ -358,11 +405,11 @@ vector <vector <Fraction>> gaussEliminationSolve(vector <vector <Fraction>> A, v
         }
         
         bool validPivot = true;
-        if(A[row][col] == Fraction(0,1)){
+        if(A[row][col] == 0){
             validPivot = false;
         } 
         for(int i = col - 1; i >= 0 && validPivot; i--){
-            if(A[row][i] != Fraction(0,1)){
+            if(A[row][i] != 0){
                 validPivot = false;
             } 
         }        
@@ -370,7 +417,7 @@ vector <vector <Fraction>> gaussEliminationSolve(vector <vector <Fraction>> A, v
         if(validPivot){
             //Backwards Elimination - UP
             for(int i = row - 1; i >= 0; i--){
-                if(A[i][col] != Fraction(0,1)){
+                if(A[i][col] != 0){
                     addSubTwoRows(A[i], multRowbyConstant(A[row], A[i][col] * Fraction(-1,1)), true);
                 }
             }
@@ -394,7 +441,7 @@ vector <vector <Fraction>> gaussEliminationSolve(vector <vector <Fraction>> A, v
         int pivotPos = -1;
         
         for(int i = 0; i < A.size() && colPivot; i++){
-            if(A[i][col] != Fraction(0,1)){
+            if(A[i][col] != 0){
                 if(pivotPos == -1){
                     pivotPos = i;
                 } else {
@@ -558,35 +605,33 @@ int main() {
         Fraction totalPresses = Fraction(0,1);
         if(X[0].size() > 1){
             
+            vector <vector <Fraction>> bounds;
+
             for(int j = 1; j < X[0].size(); j++){
-                
-                Fraction presses = maxPresses;
-                for(Fraction t = Fraction(0,1); t < maxResult; t += Fraction(1,1)){
-                
-                    vector <Fraction> partResult(X.size());
+                bounds.push_back({Fraction(),Fraction()});
 
-                    bool tValid = true;
-                    for(int i = 0; i < partResult.size() && tValid; i++){
-                        partResult[i] += X[i][0] + X[i][j] * t;
-                        if(partResult[i] < Fraction(0,1) || partResult[i].getNum() % maxDen != 0){
-                            tValid = false;
+                for(int i = 0; i < X.size(); i++){
+                    if(X[i][j] > 0){
+                        if(X[i][0] >= 0){
+                            bounds[j-1][0] = Fraction(-X[i][0].getNum()/X[i][0].getNum(),1);
+                            bounds[j-1][1] = maxPresses;
+                        } else {
+                            bounds[j-1][0] = Fraction(-X[i][0].getNum()/X[i][0].getNum() + 1,1);
+                            bounds[j-1][1] = maxPresses;
                         }
-                    }
-
-                    if(tValid){
-                        Fraction tPresses(0,1);
-                        for(Fraction x : partResult){
-                            x /= Fraction(maxDen,1);
-                            tPresses += x;
-                        }
-                        if(tPresses < presses){
-                            presses = tPresses;
+                    } else if(X[i][j] < 0){
+                        if(X[i][0] >= 0){
+                            bounds[j-1][1] = Fraction(-X[i][0].getNum()/X[i][0].getNum(),1);
+                        } else {
+                            
                         }
                     }
                     
                 }
-                totalPresses += presses;
+                
+                  
             }
+
         } else {
             for(int i = 0; i < X.size(); i++){
                 totalPresses += X[i][0];
