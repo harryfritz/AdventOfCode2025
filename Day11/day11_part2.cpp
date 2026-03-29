@@ -212,58 +212,58 @@ int main() {
     file.open(fileName);
     string input;
 
-    Graph devices;
+    // Graph devices;
 
-    for(int line = 0; getline(file, input); line++) {        
-        
-        vector <string> device = split(input, ' ');
-        device[0].pop_back(); // Remove ':'
-
-        for(int output = 1; output < device.size(); output++) {
-            devices.add_edge(device[0], device[output]);
-        }
- 
-    }
-    
-    // int answer = devices.possiblePaths("svr","out");
-    int answer = devices.possibleRestrictedPaths("svr", "out", {"dac","fft"});
-    cout << "\n\nAnswer: " << answer;
-
-    // map <string, int> nodeDictionary;
-    // int graphSize = 0;
-    // while(getline(file, input)) {        
-        
-    //     vector <string> device = split(input, ' ');
-    //     device[0].pop_back(); // Remove ':'
-
-    //     nodeDictionary.insert({device[0], graphSize + 1});
-        
-    //     graphSize++;
-    // }
-    
-    // // Include node "out"
-    // nodeDictionary.insert({"out", graphSize + 1});
-    // graphSize++; 
-
-    // file.close();
-    // file.open(fileName);
-    // vector<vector<int>> edgeList;
     // for(int line = 0; getline(file, input); line++) {        
         
     //     vector <string> device = split(input, ' ');
     //     device[0].pop_back(); // Remove ':'
-        
+
     //     for(int output = 1; output < device.size(); output++) {
-    //         edgeList.push_back({line + 1, nodeDictionary.at(device[output])});
+    //         devices.add_edge(device[0], device[output]);
     //     }
  
     // }
-
-    // int source = nodeDictionary.at("svr");
-    // int destination = nodeDictionary.at("out");
-
-    // int answer = countPaths(graphSize, edgeList, source, destination);
+    
+    // // int answer = devices.possiblePaths("svr","out");
+    // int answer = devices.possibleRestrictedPaths("svr", "out", {"dac","fft"});
     // cout << "\n\nAnswer: " << answer;
+
+    map <string, int> nodeDictionary;
+    int graphSize = 0;
+    while(getline(file, input)) {        
+        
+        vector <string> device = split(input, ' ');
+        device[0].pop_back(); // Remove ':'
+
+        nodeDictionary.insert({device[0], graphSize + 1});
+        
+        graphSize++;
+    }
+    
+    // Include node "out"
+    nodeDictionary.insert({"out", graphSize + 1});
+    graphSize++; 
+
+    file.close();
+    file.open(fileName);
+    vector<vector<int>> edgeList;
+    for(int line = 0; getline(file, input); line++) {        
+        
+        vector <string> device = split(input, ' ');
+        device[0].pop_back(); // Remove ':'
+        
+        for(int output = 1; output < device.size(); output++) {
+            edgeList.push_back({nodeDictionary.at(device[output]), line + 1});
+        }
+ 
+    }
+
+    int source = nodeDictionary.at("out");
+    int destination = nodeDictionary.at("fft");
+
+    int answer = countPaths(graphSize, edgeList, source, destination);
+    cout << "\n\nAnswer: " << answer;
     
     file.close();
     return 0;
