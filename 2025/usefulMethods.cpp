@@ -75,16 +75,18 @@ void combinationUtil(vector <vector <int>>& source, int ind, int r,
     }
 }
 
-// Return vector of strings as parts of 'text' separated by the 'delim' char
+// Return vector of strings as parts of 'text' separated by the 'delim' char (any amount of 'delim')
 // Useful for processing puzzle inputs
 vector <string> split(const string& text, char delim) {
     vector <string> tokens;
-    
     int nextDelim = 0, cursor = 0;
     while(nextDelim >= 0) {
         nextDelim = text.find(delim, cursor + 1);
         tokens.push_back(text.substr(cursor, nextDelim - cursor));
-        cursor = nextDelim + 1;
+        if(nextDelim >= 0) {
+            cursor = nextDelim;
+            while(text[cursor] == delim) cursor++;
+        }
     }
 
     return tokens;
