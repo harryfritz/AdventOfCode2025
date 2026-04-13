@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////
 //
 // Advent of Code 2024
-// Day 1 - Part one
+// Day 1 - Part two
 // Author: Fritz, M.H.
 //
 //
@@ -70,15 +70,34 @@ int main() {
     quickSort(leftColumn, 0, leftColumn.size() - 1);
     quickSort(rightColumn, 0, rightColumn.size() - 1);
 
-    // traverse both vectors, acumulating absolute difference
-    long long answer = 0;    
-    for(int id = 0; id < leftColumn.size(); id++) {
-        if(rightColumn[id] > leftColumn[id]) {
-            answer += rightColumn[id] - leftColumn[id];
-        } else {
-            answer += leftColumn[id] - rightColumn[id];
+    // Traverse leftColumn
+    //      Traverse rightColumn starting on last position (since both are sorted)
+    //      Increase multiplier for every position found where left == right
+    //      Increase SimilarityScore acordingly with multiplier
+    int cursor = 0;
+    long long answer = 0;
+    int multiplier = 0;
+    for(int left = 0; left < leftColumn.size(); left++) {
+        
+        if(left >= 1){
+            if(leftColumn[left] == leftColumn[left - 1]) {
+                answer += leftColumn[left] * multiplier;
+            } else {
+                multiplier = 0;
+            }
         }
-    }
+
+        if(multiplier == 0) {
+            int rightID = rightColumn[cursor];
+            while(rightID <= leftColumn[left] && cursor < rightColumn.size() - 1) {
+                if(rightID == leftColumn[left]) multiplier++;
+                if(cursor < rightColumn.size() - 1) cursor++; 
+                rightID = rightColumn[cursor];
+            }
+            answer += leftColumn[left] * multiplier;
+        }
+        
+    } 
 
     cout << "\n\nAnswer: " << answer;
 
