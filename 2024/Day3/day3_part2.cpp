@@ -37,18 +37,6 @@ bool isStringNumber(string& str) {
     return true;
 }
 
-vector <size_t> findAll(string& str, string pattern) {
-    int cursor = 0;
-    auto nextPos = str.find(pattern, cursor);
-    vector <size_t> found;
-    while(nextPos != string::npos) {
-        found.push_back(nextPos);
-        cursor = nextPos + 1;
-        nextPos = str.find(pattern, cursor);
-    }
-    return found;
-}
-
 int main() {
   
     ifstream file;
@@ -56,35 +44,42 @@ int main() {
     string input;
 
     long long answer = 0; 
+    bool enabled = true;
     while(getline(file, input)) {
 
         cout << "\n" << input;
 
-        vector <size_t> dos = findAll(input, "do()");
-        vector <size_t> donts = findAll(input, "don't()");
-        vector <size_t> muls = findAll(input, "mul(");
         
-        for(size_t mul : muls) {
-            string sub = input.substr(mul + 4, input.find(")", mul) - mul - 4);
-            cout << "\n" << mul << ": " << sub;
-
-            if(true) {
+        for(int c = 0; c < input.size(); c++) {
+            if(input[c] == 'd' && input[c+1] == 'o' && input[c+2] == '(' && input[c+3] == ')') {
+                enabled = true;
+            } 
+            if(input[c] == 'd' && input[c+1] == 'o' && input[c+2] == 'n' && input[c+3] == 39
+                && input[c+4] == 't' && input[c+5] == '(' && input[c+6] == ')') {
+                enabled = false;
+            }
+            if(input[c] == 'm' && input[c+1] == 'u' && input[c+2] == 'l' && input[c+3] == '(') {
+                string sub = input.substr(c + 4, input.find(")", c) - c - 4);
+                cout << "\n" << c << ": " << sub;
                 vector <string> numbers = split(sub, ',');
                 if(numbers.size() == 2) {
                     if(isStringNumber(numbers[0]) && isStringNumber(numbers[1])) {
-                        int product = stoi(numbers[0]) * stoi(numbers[1]);
-                        answer += product;
-                        cout << " - Valid - " << numbers[0] << "x" << numbers[1] << "=" << product;
+                        if(enabled) {
+                            int product = stoi(numbers[0]) * stoi(numbers[1]);
+                            answer += product;
+                            cout << " - Valid - " << numbers[0] << "x" << numbers[1] << "=" << product;
+                        } else {
+                            cout << " - Invalid, disabled";
+                        }
                     } else {
                         cout << " - Invalid, elements non-numeral";
                     }
                 } else {
                     cout << " - Invalid, more than 2 elements";
                 }
-            } else {
-                cout << " - Invalid, Function Deactivated";
-            } 
+            }
         }
+        
     }
 
     cout << "\n\nAnswer: " << answer;
