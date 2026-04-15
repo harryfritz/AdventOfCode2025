@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 //
 // Advent of Code 2024
-// Day 5 - Part one
+// Day 5 - Part two
 // Author: Fritz, M.H.
 //
 //
@@ -41,6 +41,12 @@ vector <int> getRules(vector <vector <int>>& rules, int page) {
 // Returns middle element of vector with odd size
 int middleElement(vector <int>& arr) {
     return arr[arr.size() / 2];
+}
+
+void swapPages(vector <int>& update, int page1Index, int page2Index) {
+    int temp = update[page1Index];
+    update[page1Index] = update[page2Index];
+    update[page2Index] = temp;
 }
 
 // Builds string from vector <int> assuming all elements are two-digits
@@ -88,7 +94,8 @@ int main() {
     
     }
 
-    long long answer = 0; 
+     
+    vector <vector <int>> incorrectUpdates;
     for(vector <int> update : updates) {
         cout << "\n" << printUpdate(update) << " - ";
         bool correct = true;
@@ -102,10 +109,34 @@ int main() {
         
         if(correct) {
             cout << "Correct";
-            answer += middleElement(update);
         } else {
             cout << "Incorrect";
+            incorrectUpdates.push_back(update);
         }
+    }
+
+    cout << "\n\nIncorrects:";
+    long long answer = 0;
+    for(vector <int> update : incorrectUpdates) {
+        cout << "\n" << printUpdate(update) << " -> ";
+        
+        bool correct = false;
+        while(!correct) {
+            correct = true;
+            for(int page = 0; page < update.size() && correct; page++) {
+                for(int secondPage : getRules(rules, update[page])) {
+                    for(int cursor = page - 1; cursor >= 0 && correct; cursor--){
+                        if(update[cursor] == secondPage) {
+                            correct = false;
+                            swapPages(update, page, cursor);
+                        } 
+                    }
+                }
+            }
+        }
+        
+        cout << printUpdate(update);
+        answer += middleElement(update);
     }
 
     cout << "\n\nAnswer: " << answer;
