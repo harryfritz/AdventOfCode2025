@@ -11,6 +11,9 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <list>
+#include <deque>
+#include <queue>
 
 using namespace std;
 
@@ -48,40 +51,39 @@ int main() {
     file.open("input.txt");
     string input;
 
-    vector <long long> stones;
+    queue <long long> stones;
+
     while(getline(file, input)) {
 
         // cout << "\n" << input;
 
         for(string s : split(input, ' ')) {
-            stones.push_back(stoll(s));
+            stones.push(stoll(s));
         }
     
     }
 
-    vector <long long> newStones;
     for(int blink = 0; blink < 75; blink++) {
-        newStones.clear();
-        for(long long stone = 0; stone < stones.size(); stone++) {
-            long long stoneValue = stones[stone];
-            if(stoneValue == 0) {
-                newStones.push_back(1);
-            } else if(digits(stoneValue)%2 == 0) {
-                long long divider = evenIntegerDivider(stoneValue);
-                newStones.push_back(stoneValue/divider);
-                newStones.push_back(stoneValue%divider);
-            } else {
-               newStones.push_back(stoneValue*2024);
-            }
-            
-        }
-        stones = newStones;
         
-        cout << "\nBlink " << blink << ": " << stones.size() << " Stones";
-
+        long long queueSize = stones.size();
+        for(long long i = 0; i < queueSize; i++) {
+            long long stone = stones.front();
+            stones.pop();
+            if(stone == 0) {
+                stones.push(1);
+            } else if(digits(stone)%2 == 0) {
+                long long divider = evenIntegerDivider(stone);
+                stones.push(stone/divider);
+                stones.push(stone%divider);
+            } else {
+                stones.push(stone*2024);
+            }
+        }
+        cout << "\nBlink " << blink << ": " << stones.size() << " Stones";        
+        
     }
 
-    cout << "\n\nAnswer: " << stones.size();
+    cout << "\n\nAnswer: " << stones.size();    
 
     file.close();
     return 0;

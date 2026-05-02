@@ -45,7 +45,7 @@ long long evenIntegerDivider(long long number) {
 int main() {
 
     ifstream file;
-    file.open("input.txt");
+    file.open("example2.txt");
     string input;
 
     vector <vector <long long>> stones1;
