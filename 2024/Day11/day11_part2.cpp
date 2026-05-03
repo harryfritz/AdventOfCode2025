@@ -14,6 +14,7 @@
 #include <list>
 #include <deque>
 #include <queue>
+#include <map>
 
 using namespace std;
 
@@ -45,45 +46,58 @@ long long evenIntegerDivider(long long number) {
     return divider;
 }
 
+void insertOrIncrease(map <long long, long long>& stones, long long value) {
+    auto s = stones.find(value);
+    if(s == stones.end()) stones.insert({value,1});
+    else stones.at(value)++;
+}
+
+long long mapCount(map <long long, long long>& stones) {
+    long long result = 0;
+    for(auto stone : stones) {
+        result += stone.second;
+    }
+}
+
 int main() {
 
     ifstream file;
-    file.open("input.txt");
+    file.open("example.txt");
     string input;
 
-    queue <long long> stones;
+    map <long long, long long> stones;
 
     while(getline(file, input)) {
 
         // cout << "\n" << input;
 
         for(string s : split(input, ' ')) {
-            stones.push(stoll(s));
+            insertOrIncrease(stones, stoll(s));
         }
     
     }
 
-    for(int blink = 0; blink < 75; blink++) {
+    for(int blink = 0; blink < 25; blink++) {
         
-        long long queueSize = stones.size();
-        for(long long i = 0; i < queueSize; i++) {
-            long long stone = stones.front();
-            stones.pop();
-            if(stone == 0) {
-                stones.push(1);
-            } else if(digits(stone)%2 == 0) {
-                long long divider = evenIntegerDivider(stone);
-                stones.push(stone/divider);
-                stones.push(stone%divider);
+        for(auto& stone : stones){
+            stone.second--;
+            long long stoneValue = stone.first;
+            if(stoneValue == 0) {
+                insertOrIncrease(stones, 1);
+            } else if(digits(stoneValue)%2 == 0) {
+                long long divider = evenIntegerDivider(stoneValue);
+                insertOrIncrease(stones, stoneValue/divider);
+                insertOrIncrease(stones, stoneValue%divider);
             } else {
-                stones.push(stone*2024);
+                insertOrIncrease(stones, stoneValue*2024);
             }
         }
+        
         cout << "\nBlink " << blink << ": " << stones.size() << " Stones";        
         
     }
 
-    cout << "\n\nAnswer: " << stones.size();    
+    // cout << "\n\nAnswer: " << stones.size();    
 
     file.close();
     return 0;
