@@ -11,10 +11,6 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <list>
-#include <deque>
-#include <queue>
-#include <map>
 
 using namespace std;
 
@@ -46,59 +42,96 @@ long long evenIntegerDivider(long long number) {
     return divider;
 }
 
-void insertOrIncrease(map <long long, long long>& stones, long long value) {
-    auto s = stones.find(value);
-    if(s == stones.end()) stones.insert({value,1});
-    else stones.at(value)++;
+void insertOrIncrease(vector <vector <long long>>& stones, long long stoneValue, long long stoneAmount) {
+    bool insert = true;
+    long long stonePos = 0;
+    while(stonePos < stones.size()){
+        if(stones[stonePos][0] == stoneValue) {
+            insert = false;
+            break;
+        }
+        stonePos++;
+    }
+
+    if(insert){
+        stones.push_back({stoneValue, stoneAmount});
+    } else {
+        stones[stonePos][1] += stoneAmount;
+    }
 }
 
-long long mapCount(map <long long, long long>& stones) {
+long long stonesAmount(vector <vector <long long>>& stones) {
     long long result = 0;
-    for(auto stone : stones) {
-        result += stone.second;
+    for(vector <long long> stone : stones) {
+        result += stone[1];
     }
+    return result;
 }
 
 int main() {
 
     ifstream file;
-    file.open("example.txt");
+    file.open("input.txt");
     string input;
 
-    map <long long, long long> stones;
+    vector <vector <long long>> stones1;
+    vector <vector <long long>> stones2;
 
     while(getline(file, input)) {
 
         // cout << "\n" << input;
 
         for(string s : split(input, ' ')) {
-            insertOrIncrease(stones, stoll(s));
+            stones1.push_back({stoll(s),1});
         }
     
     }
 
-    for(int blink = 0; blink < 25; blink++) {
+    int arr = 1;
+    for(int blink = 0; blink < 75; blink++) {
         
-        for(auto& stone : stones){
-            stone.second--;
-            long long stoneValue = stone.first;
-            if(stoneValue == 0) {
-                insertOrIncrease(stones, 1);
-            } else if(digits(stoneValue)%2 == 0) {
-                long long divider = evenIntegerDivider(stoneValue);
-                insertOrIncrease(stones, stoneValue/divider);
-                insertOrIncrease(stones, stoneValue%divider);
-            } else {
-                insertOrIncrease(stones, stoneValue*2024);
+        if(arr == 1) {
+            for(vector <long long> stone : stones1) {
+                long long stoneValue = stone[0];
+                if(stoneValue == 0) {
+                    insertOrIncrease(stones2, 1, stone[1]);
+                } else if(digits(stoneValue)%2 == 0) {
+                    long long divider = evenIntegerDivider(stoneValue);
+                    insertOrIncrease(stones2, stoneValue/divider, stone[1]);
+                    insertOrIncrease(stones2, stoneValue%divider, stone[1]);
+                } else {
+                   insertOrIncrease(stones2, stoneValue*2024, stone[1]);
+                }
             }
-        }
-        
-        cout << "\nBlink " << blink << ": " << stones.size() << " Stones";        
+            stones1.clear();
+            cout << "\nBlink " << blink << ": " << stonesAmount(stones2) << " Stones";   
+            arr = 2;
+        } else {
+            for(vector <long long> stone : stones2) {
+                long long stoneValue = stone[0];
+                if(stoneValue == 0) {
+                    insertOrIncrease(stones1, 1, stone[1]);
+                } else if(digits(stoneValue)%2 == 0) {
+                    long long divider = evenIntegerDivider(stoneValue);
+                    insertOrIncrease(stones1, stoneValue/divider, stone[1]);
+                    insertOrIncrease(stones1, stoneValue%divider, stone[1]);
+                } else {
+                   insertOrIncrease(stones1, stoneValue*2024, stone[1]);
+                }
+            }
+            stones2.clear();
+            cout << "\nBlink " << blink << ": " << stonesAmount(stones1) << " Stones";   
+            arr = 1;
+        }   
         
     }
 
-    // cout << "\n\nAnswer: " << stones.size();    
-
+    if(arr == 1) {
+        cout << "\n\nAnswer: " << stonesAmount(stones1);    
+    } else {
+        cout << "\n\nAnswer: " << stonesAmount(stones2);            
+    }
+    
     file.close();
     return 0;
 }
