@@ -11,9 +11,6 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <list>
-#include <deque>
-#include <queue>
 
 using namespace std;
 
@@ -45,46 +42,96 @@ long long evenIntegerDivider(long long number) {
     return divider;
 }
 
+void insertOrIncrease(vector <vector <long long>>& stones, long long stoneValue, long long stoneAmount) {
+    bool insert = true;
+    long long stonePos = 0;
+    while(stonePos < stones.size()){
+        if(stones[stonePos][0] == stoneValue) {
+            insert = false;
+            break;
+        }
+        stonePos++;
+    }
+
+    if(insert){
+        stones.push_back({stoneValue, stoneAmount});
+    } else {
+        stones[stonePos][1] += stoneAmount;
+    }
+}
+
+long long stonesAmount(vector <vector <long long>>& stones) {
+    long long result = 0;
+    for(vector <long long> stone : stones) {
+        result += stone[1];
+    }
+    return result;
+}
+
 int main() {
 
     ifstream file;
     file.open("input.txt");
     string input;
 
-    queue <long long> stones;
+    vector <vector <long long>> stones1;
+    vector <vector <long long>> stones2;
 
     while(getline(file, input)) {
 
         // cout << "\n" << input;
 
         for(string s : split(input, ' ')) {
-            stones.push(stoll(s));
+            stones1.push_back({stoll(s),1});
         }
     
     }
 
+    int arr = 1;
     for(int blink = 0; blink < 75; blink++) {
         
-        long long queueSize = stones.size();
-        for(long long i = 0; i < queueSize; i++) {
-            long long stone = stones.front();
-            stones.pop();
-            if(stone == 0) {
-                stones.push(1);
-            } else if(digits(stone)%2 == 0) {
-                long long divider = evenIntegerDivider(stone);
-                stones.push(stone/divider);
-                stones.push(stone%divider);
-            } else {
-                stones.push(stone*2024);
+        if(arr == 1) {
+            for(vector <long long> stone : stones1) {
+                long long stoneValue = stone[0];
+                if(stoneValue == 0) {
+                    insertOrIncrease(stones2, 1, stone[1]);
+                } else if(digits(stoneValue)%2 == 0) {
+                    long long divider = evenIntegerDivider(stoneValue);
+                    insertOrIncrease(stones2, stoneValue/divider, stone[1]);
+                    insertOrIncrease(stones2, stoneValue%divider, stone[1]);
+                } else {
+                   insertOrIncrease(stones2, stoneValue*2024, stone[1]);
+                }
             }
-        }
-        cout << "\nBlink " << blink << ": " << stones.size() << " Stones";        
+            stones1.clear();
+            cout << "\nBlink " << blink << ": " << stonesAmount(stones2) << " Stones";   
+            arr = 2;
+        } else {
+            for(vector <long long> stone : stones2) {
+                long long stoneValue = stone[0];
+                if(stoneValue == 0) {
+                    insertOrIncrease(stones1, 1, stone[1]);
+                } else if(digits(stoneValue)%2 == 0) {
+                    long long divider = evenIntegerDivider(stoneValue);
+                    insertOrIncrease(stones1, stoneValue/divider, stone[1]);
+                    insertOrIncrease(stones1, stoneValue%divider, stone[1]);
+                } else {
+                   insertOrIncrease(stones1, stoneValue*2024, stone[1]);
+                }
+            }
+            stones2.clear();
+            cout << "\nBlink " << blink << ": " << stonesAmount(stones1) << " Stones";   
+            arr = 1;
+        }   
         
     }
 
-    cout << "\n\nAnswer: " << stones.size();    
-
+    if(arr == 1) {
+        cout << "\n\nAnswer: " << stonesAmount(stones1);    
+    } else {
+        cout << "\n\nAnswer: " << stonesAmount(stones2);            
+    }
+    
     file.close();
     return 0;
 }
