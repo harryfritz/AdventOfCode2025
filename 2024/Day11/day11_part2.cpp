@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////
 //
 // Advent of Code 2024
-// Day 11 - Part one
+// Day 11 - Part two
 // Author: Fritz, M.H.
 //
 //
